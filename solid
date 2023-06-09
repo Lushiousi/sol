@@ -1,0 +1,54 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+contract Voting {
+    address public admin;
+    uint public endTime;
+    uint public totalVotes;
+    
+    struct Student {
+        string name;
+        uint groupNumber;
+        bool hasVoted;
+    }
+    
+    mapping(address => Student) public students;
+    mapping(uint => uint) public voteCount;
+    
+    
+    constructor(string memory name, uint groupNumber, bool hasVoted) {
+        admin = msg.sender;
+        endTime = block.timestamp + 1 minutes;
+        students.push(Student)
+    }
+      
+    function registerStudent(address _address, string memory _name, uint _groupNumber) public  {
+        require(msg.sender == admin, "Only admin can call this function.");
+        require(students[_address].groupNumber == 0, "Student is already registered.");
+        students[_address] = Student(_name, _groupNumber, false);
+        if (_groupNumber == 1 || _groupNumber == 2) {
+            totalVotes += 1;
+        }
+    }
+    
+    function vote(uint _groupNumber) public {
+        require(block.timestamp < endTime, "Voting has ended.");
+        require(!students[msg.sender].hasVoted, "You have already voted.");
+        require(students[msg.sender].groupNumber == _groupNumber, "You cannot vote for this group.");
+        voteCount[_groupNumber] += 1;
+        students[msg.sender].hasVoted = true;
+    }
+    
+    function getWinner() public view returns (uint) {
+        require(block.timestamp >= endTime, "Voting has not ended yet.");
+        require(totalVotes > 0, "No votes have been cast.");
+        uint winner = 0;
+        uint highestVoteCount = 0;
+        for (uint i = 1; i <= 2; i++) {
+            if (voteCount[i] > highestVoteCount) {
+                highestVoteCount = voteCount[i];
+                winner = i;
+            }
+        }
+        return winner;
+    }
+}
