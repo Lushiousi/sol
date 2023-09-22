@@ -1,0 +1,29 @@
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.11;
+contract MoneyTransfer {
+    struct User {
+        string name;
+        uint age;
+    }
+    struct transfers{
+        uint id;
+        address sender;
+        address reciever;
+        uint amount;
+        bool completed;
+    }
+
+    transfers[] public trans;
+
+    mapping(address => User) private senderUsers;
+    
+    function transfer(address payable _sender, address payable _receiver) public payable {
+        require(msg.value > 0, "Insufficient balance for transfer");
+        trans.push(transfers(trans.length, _sender, _receiver, msg.value, false));
+    }
+
+    function pay(uint id) public payable {
+
+        payable (trans[id].reciever).transfer(trans[id].amount);
+    }
+}
